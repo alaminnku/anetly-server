@@ -1,8 +1,8 @@
-import "express-async-errors";
 import express from "express";
 import dotenv from "dotenv";
 import helmet from "helmet";
 const xssClean = require("xss-clean");
+import "express-async-errors"; // Put before any route import
 import mongoSanitize from "express-mongo-sanitize";
 import { connectDB } from "./config/db";
 import User from "./routes/user";

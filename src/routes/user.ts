@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import User from "../models/user";
 import bcrypt from "bcrypt";
 import { createToken, deleteFields } from "../utils";
@@ -28,35 +28,38 @@ router.post("/register", async (req, res, next) => {
     throw new Error("Please provide all the fields");
   }
 
-  //   try {
-  //     // Create salt
-  //     const salt = await bcrypt.genSalt(10);
+  try {
+    // Create salt
+    const salt = await bcrypt.genSalt(10);
 
-  //     // Hash password
-  //     const hashedPassword = await bcrypt.hash(password, salt);
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-  //     // Create user
-  //     const user = await User.create({
-  //       firstName,
-  //       lastName,
-  //       email,
-  //       password: hashedPassword,
-  //     });
+    // Create user
+    const response = await User.create({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+    });
 
-  //     // Create token
-  //     const token = createToken(user._id);
+    // Convert BSON to object
+    const user = response.toObject();
 
-  //     // Delete fields
-  //     deleteFields(user, ["createdAt", "password"]);
+    // Create token
+    const token = createToken(user._id);
 
-  //     // Send the response
-  //     res.status(201).json({ user, token });
-  //   } catch (err) {
-  //     // Log error
-  //     console.log(err);
+    // Delete fields
+    deleteFields(user, ["createdAt", "password"]);
 
-  //     throw err;
-  //   }
+    // Send the response
+    res.status(201).json({ ...user, token });
+  } catch (err) {
+    // Log error
+    console.log(err);
+
+    throw err;
+  }
 });
 
 export default router;
