@@ -6,6 +6,11 @@ import { createToken, deleteFields } from "../utils";
 // Initiate route
 const router = express.Router();
 
+interface ILoginPayload {
+  email: string;
+  password: string;
+}
+
 // Types
 interface IRegisterPayload {
   firstName: string;
@@ -54,6 +59,47 @@ router.post("/register", async (req, res, next) => {
 
     // Send the response
     res.status(201).json({ ...user, token });
+  } catch (err) {
+    // Log error
+    console.log(err);
+
+    throw err;
+  }
+});
+
+// Login
+router.post("/login", async (req, res) => {
+  // Destructure data
+  const { email, password }: ILoginPayload = req.body;
+
+  if (!email || !password) {
+    // Log error
+    console.log("Please provide all fields");
+
+    res.status(400);
+    throw new Error("Please provide all fields");
+  }
+
+  try {
+    // Find the user
+    const user = await User.findOne({ email }).lean().orFail();
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      // Create token
+      const token = createToken(user._id);
+
+      // Delete fields
+      deleteFields(user, ["password", "createdAt"]);
+
+      // Send data with response
+      res.status(200).json({ ...user, token });
+    } else {
+      // Log error
+      console.log("Invalid credentials");
+
+      res.status(400);
+      throw new Error("Invalid credentials");
+    }
   } catch (err) {
     // Log error
     console.log(err);
