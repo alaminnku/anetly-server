@@ -1,7 +1,8 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import User from "../models/user";
 import bcrypt from "bcrypt";
 import { createToken, deleteFields } from "../utils";
+import authUser from "../middleware/authUser";
 
 // Initiate route
 const router = express.Router();
@@ -106,6 +107,12 @@ router.post("/login", async (req, res) => {
 
     throw err;
   }
+});
+
+// Get user details
+router.get("/me", authUser, async (req, res) => {
+  // Send the user with response
+  res.status(200).json(req.user);
 });
 
 export default router;

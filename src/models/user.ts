@@ -1,9 +1,7 @@
 import { Schema, model } from "mongoose";
+import { IUser } from "../types";
 
-interface IUserSchema {
-  firstName: string;
-  lastName: string;
-  email: string;
+interface IUserSchema extends IUser {
   password: string;
 }
 
