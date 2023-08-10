@@ -1,33 +1,36 @@
-import { Schema, model } from "mongoose";
-import { IUser } from "../types";
+import { Schema, model } from 'mongoose';
+import { IUser } from '../types';
 
-interface IUserSchema extends IUser {
-  password: string;
-}
+interface IUserSchema extends IUser {}
 
 const userSchema = new Schema<IUserSchema>(
   {
     firstName: {
       type: String,
       trim: true,
-      required: [true, "Please provide a first name"],
+      required: [true, 'Please provide a first name'],
     },
     lastName: {
       type: String,
       trim: true,
-      required: [true, "Please provide a last name"],
+      required: [true, 'Please provide a last name'],
     },
     email: {
       type: String,
       trim: true,
       unique: true,
       lowercase: true,
-      required: [true, "Please provide an email"],
+      required: [true, 'Please provide an email'],
     },
     password: {
       type: String,
       trim: true,
-      required: [true, "Please provide a password"],
+      required: [true, 'Please provide a password'],
+    },
+    role: {
+      type: String,
+      enum: ['USER', 'BUSINESS'],
+      required: [true, 'Please provide a role'],
     },
   },
   {
@@ -35,4 +38,4 @@ const userSchema = new Schema<IUserSchema>(
   }
 );
 
-export default model("User", userSchema);
+export default model('User', userSchema);

@@ -9,7 +9,6 @@
     "postinstall": "npm run tsc",
     "dev": "nodemon ./src/app.ts"
   },
-  "keywords": [],
   "author": "Alamin Shaikh",
   "license": "ISC",
   "dependencies": {

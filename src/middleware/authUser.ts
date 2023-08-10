@@ -1,6 +1,6 @@
-import User from "../models/user";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
+import User from '../models/user';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
 
 export default async function handler(
   req: Request,
@@ -13,10 +13,10 @@ export default async function handler(
   // Return not authorized in there is no token
   if (!token) {
     // Log error
-    console.log("Not authorized");
+    console.log('Not authorized');
 
     res.status(401);
-    throw new Error("Not authorized");
+    throw new Error('Not authorized');
   }
 
   try {
@@ -28,7 +28,7 @@ export default async function handler(
 
     // Find the user
     const user = await User.findById(decoded._id)
-      .select("-__v -password -updatedAt -createdAt")
+      .select('-__v -password -updatedAt -createdAt')
       .lean();
 
     // If there is a user in db

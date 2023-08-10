@@ -1,12 +1,12 @@
-import express from "express";
-import dotenv from "dotenv";
-import helmet from "helmet";
-const xssClean = require("xss-clean");
-import "express-async-errors"; // Put before any route import
-import mongoSanitize from "express-mongo-sanitize";
-import { connectDB } from "./config/db";
-import User from "./routes/user";
-import error from "./middleware/error";
+import express from 'express';
+import dotenv from 'dotenv';
+import helmet from 'helmet';
+const xssClean = require('xss-clean');
+import 'express-async-errors'; // Put before any route import
+import mongoSanitize from 'express-mongo-sanitize';
+import { connectDB } from './config/db';
+import User from './routes/user';
+import error from './middleware/error';
 
 // Config
 dotenv.config();
@@ -28,10 +28,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Routes
-app.use("/users", User);
+app.use('/users', User);
 
 // Error Middleware
 app.use(error);
 
 // Start app
-app.listen(PORT, () => console.log("Server started"));
+app.listen(PORT, () => console.log('Server started'));

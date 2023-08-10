@@ -1,37 +1,34 @@
-import express, { Request, Response } from "express";
-import User from "../models/user";
-import bcrypt from "bcrypt";
-import { createToken, deleteFields } from "../utils";
-import authUser from "../middleware/authUser";
+import express from 'express';
+import User from '../models/user';
+import bcrypt from 'bcrypt';
+import { createToken, deleteFields } from '../utils';
+import authUser from '../middleware/authUser';
+import { IUser } from '../types';
 
 // Initiate route
 const router = express.Router();
 
+// Types
 interface ILoginPayload {
   email: string;
   password: string;
 }
 
-// Types
-interface IRegisterPayload {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-}
+interface IRegisterPayload extends IUser {}
 
 // Register
-router.post("/register", async (req, res, next) => {
+router.post('/register', async (req, res) => {
   // Destructure data
-  const { firstName, lastName, email, password }: IRegisterPayload = req.body;
+  const { firstName, lastName, email, password, role }: IRegisterPayload =
+    req.body;
 
   // Validation
-  if (!firstName || !lastName || !email || !password) {
+  if (!firstName || !lastName || !email || !password || !role) {
     // Log error
-    console.log("Please provide all the fields");
+    console.log('Please provide all the fields');
 
     res.status(400);
-    throw new Error("Please provide all the fields");
+    throw new Error('Please provide all the fields');
   }
 
   try {
@@ -46,6 +43,7 @@ router.post("/register", async (req, res, next) => {
       firstName,
       lastName,
       email,
+      role,
       password: hashedPassword,
     });
 
@@ -56,7 +54,7 @@ router.post("/register", async (req, res, next) => {
     const token = createToken(user._id);
 
     // Delete fields
-    deleteFields(user, ["createdAt", "password"]);
+    deleteFields(user, ['createdAt', 'password']);
 
     // Send the response
     res.status(201).json({ ...user, token });
@@ -69,16 +67,16 @@ router.post("/register", async (req, res, next) => {
 });
 
 // Login
-router.post("/login", async (req, res) => {
+router.post('/login', async (req, res) => {
   // Destructure data
   const { email, password }: ILoginPayload = req.body;
 
   if (!email || !password) {
     // Log error
-    console.log("Please provide all fields");
+    console.log('Please provide all fields');
 
     res.status(400);
-    throw new Error("Please provide all fields");
+    throw new Error('Please provide all fields');
   }
 
   try {
@@ -90,16 +88,16 @@ router.post("/login", async (req, res) => {
       const token = createToken(user._id);
 
       // Delete fields
-      deleteFields(user, ["password", "createdAt"]);
+      deleteFields(user, ['password', 'createdAt']);
 
       // Send data with response
       res.status(200).json({ ...user, token });
     } else {
       // Log error
-      console.log("Invalid credentials");
+      console.log('Invalid credentials');
 
       res.status(400);
-      throw new Error("Invalid credentials");
+      throw new Error('Invalid credentials');
     }
   } catch (err) {
     // Log error
@@ -110,7 +108,7 @@ router.post("/login", async (req, res) => {
 });
 
 // Get user details
-router.get("/me", authUser, async (req, res) => {
+router.get('/me', authUser, async (req, res) => {
   // Send the user with response
   res.status(200).json(req.user);
 });
