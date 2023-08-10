@@ -6,6 +6,7 @@ import 'express-async-errors'; // Put before any route import
 import mongoSanitize from 'express-mongo-sanitize';
 import { connectDB } from './config/db';
 import User from './routes/user';
+import Business from './routes/business';
 import error from './middleware/error';
 
 // Config
@@ -29,6 +30,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Routes
 app.use('/users', User);
+app.use('/businesses', Business);
 
 // Error Middleware
 app.use(error);
