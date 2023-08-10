@@ -29,7 +29,7 @@ const userSchema = new Schema<IUserSchema>(
     },
     role: {
       type: String,
-      enum: ['USER', 'BUSINESS'],
+      enum: ['CUSTOMER', 'BUSINESS'],
       required: [true, 'Please provide a role'],
     },
   },
