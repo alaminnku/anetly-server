@@ -1,6 +1,7 @@
 import express from 'express';
 import authUser from '../middleware/authUser';
 import User from '../models/user';
+import { notAuthorizedMessage, validationMessage } from '../utils';
 
 // Initiate route
 const router = express.Router();
@@ -10,6 +11,13 @@ interface IBusinessPayload {
   name: string;
   address: string;
   category: string;
+}
+
+interface IItemPayload {
+  name: string;
+  price: string;
+  image: string;
+  description: string;
 }
 
 // Add business
@@ -23,10 +31,10 @@ router.patch('/add', authUser, async (req, res) => {
 
       if (!name || !address || !category) {
         // Log error
-        console.log('Please provide all the fields');
+        console.log(validationMessage);
 
         res.status(400);
-        throw new Error('Please provide all fields');
+        throw new Error(validationMessage);
       }
 
       try {
@@ -42,9 +50,13 @@ router.patch('/add', authUser, async (req, res) => {
             },
           },
           { returnDocument: 'after' }
-        );
+        )
+          .select('-password -createdAt -updatedAt -__v')
+          .lean()
+          .orFail();
 
-        console.log(updatedUser);
+        // Send the response
+        res.status(201).json(updatedUser);
       } catch (err) {
         // Log error
         console.log(err);
@@ -53,17 +65,83 @@ router.patch('/add', authUser, async (req, res) => {
       }
     } else {
       // If role isn't business
-      console.log('Not authorized');
+      console.log(notAuthorizedMessage);
 
       res.status(403);
-      throw new Error('Not authorized');
+      throw new Error(notAuthorizedMessage);
     }
   } else {
     // If role isn't business
-    console.log('Not authorized');
+    console.log(notAuthorizedMessage);
 
     res.status(403);
-    throw new Error('Not authorized');
+    throw new Error(notAuthorizedMessage);
+  }
+});
+
+// Add item
+router.patch('/add-item', authUser, async (req, res) => {
+  if (req.user) {
+    // Get role
+    const { role } = req.user;
+
+    if (role === 'BUSINESS') {
+      // Destructure data
+      const { name, price, image, description }: IItemPayload = req.body;
+
+      if (!name || !price || !image || !description) {
+        console.log(validationMessage);
+
+        res.status(400);
+        throw new Error(validationMessage);
+      }
+
+      try {
+        // Create an item
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: req.user._id },
+          {
+            $push: {
+              'business.items': {
+                name,
+                price,
+                image,
+                description,
+              },
+            },
+          },
+          {
+            returnDocument: 'after',
+          }
+        )
+          .select('-password -createdAt -updatedAt -__v')
+          .lean()
+          .orFail();
+
+        // Get business
+        const business = updatedUser?.business;
+
+        // Return business
+        res.status(201).json(business);
+      } catch (err) {
+        // Log error
+        console.log(err);
+
+        throw err;
+      }
+    } else {
+      // If role isn't business
+      console.log(notAuthorizedMessage);
+
+      res.status(403);
+      throw new Error(notAuthorizedMessage);
+    }
+  } else {
+    // If role isn't business
+    console.log(notAuthorizedMessage);
+
+    res.status(403);
+    throw new Error(notAuthorizedMessage);
   }
 });
 

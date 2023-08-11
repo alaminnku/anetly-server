@@ -30,7 +30,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Routes
 app.use('/users', User);
-app.use('/businesses', Business);
+app.use('/business', Business);
 
 // Error Middleware
 app.use(error);
