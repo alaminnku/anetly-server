@@ -8,9 +8,21 @@ export default async function handler(
   next: NextFunction
 ) {
   // If there are cookies
-  const token = req.headers.authorization;
+  const authorizationHeader = req.headers.authorization;
 
-  // Return not authorized in there is no token
+  // Return not authorized if there is no authorization header
+  if (!authorizationHeader) {
+    // Log error
+    console.log('Not authorized');
+
+    res.status(401);
+    throw new Error('Not authorized');
+  }
+
+  // Get token
+  const token = authorizationHeader.split('Bearer ')[1];
+
+  // Return not authorized if there is no token
   if (!token) {
     // Log error
     console.log('Not authorized');

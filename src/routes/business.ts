@@ -187,8 +187,6 @@ router.patch('/update-item/:id', authUser, async (req, res) => {
         // Get business
         const business = updatedUser?.business;
 
-        console.log(business);
-
         // Return business
         res.status(201).json(business);
       } catch (err) {
@@ -213,17 +211,54 @@ router.patch('/update-item/:id', authUser, async (req, res) => {
   }
 });
 
+// Get all businesses
+router.get('/all', authUser, async (req, res) => {
+  if (req.user) {
+    // Get role
+    const { role } = req.user;
+
+    if (role === 'CUSTOMER') {
+      try {
+        // Query database
+        const response = await User.find().select('business').lean().orFail();
+
+        // Get the businesses
+        const businesses = response.filter((user) => user.business);
+
+        // Return response
+        res.status(200).json(businesses);
+      } catch (err) {
+        // Log error
+        console.log(err);
+
+        throw err;
+      }
+    } else {
+      // If role isn't business
+      console.log('Not authorized');
+
+      res.status(403);
+      throw new Error('Not authorized');
+    }
+  } else {
+    // If role isn't business
+    console.log('Not authorized');
+
+    res.status(403);
+    throw new Error('Not authorized');
+  }
+});
+
 // if (req.user) {
-//     // Get role
-//     const { role } = req.user;
-//     if (role === 'BUSINESS') {
+//   // Get role
+//   const { role } = req.user;
+//   if (role === 'CUSTOMER') {
+//     try {
+//     } catch (err) {
+//       // Log error
+//       console.log(err);
 
-//     } else {
-//       // If role isn't business
-//       console.log('Not authorized');
-
-//       res.status(403);
-//       throw new Error('Not authorized');
+//       throw err;
 //     }
 //   } else {
 //     // If role isn't business
@@ -232,5 +267,12 @@ router.patch('/update-item/:id', authUser, async (req, res) => {
 //     res.status(403);
 //     throw new Error('Not authorized');
 //   }
+// } else {
+//   // If role isn't business
+//   console.log('Not authorized');
+
+//   res.status(403);
+//   throw new Error('Not authorized');
+// }
 
 export default router;
