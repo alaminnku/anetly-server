@@ -145,6 +145,74 @@ router.patch('/add-item', authUser, async (req, res) => {
   }
 });
 
+// Update item
+router.patch('/update-item/:id', authUser, async (req, res) => {
+  if (req.user) {
+    // Get role
+    const { role } = req.user;
+    const { id } = req.params;
+
+    if (role === 'BUSINESS') {
+      // Destructure data
+      const { name, price, image, description }: IItemPayload = req.body;
+
+      // Make sure all fields are provided
+      if (!name || !price || !image || !description) {
+        console.log(validationMessage);
+
+        res.status(400);
+        throw new Error(validationMessage);
+      }
+
+      try {
+        // Create an item
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: req.user._id, 'business.items._id': id },
+          {
+            $set: {
+              'business.items.$.name': name,
+              'business.items.$.price': price,
+              'business.items.$.image': image,
+              'business.items.$.description': description,
+            },
+          },
+          {
+            returnDocument: 'after',
+          }
+        )
+          .select('-password -createdAt -updatedAt -__v')
+          .lean()
+          .orFail();
+
+        // Get business
+        const business = updatedUser?.business;
+
+        console.log(business);
+
+        // Return business
+        res.status(201).json(business);
+      } catch (err) {
+        // Log error
+        console.log(err);
+
+        throw err;
+      }
+    } else {
+      // If role isn't business
+      console.log(notAuthorizedMessage);
+
+      res.status(403);
+      throw new Error(notAuthorizedMessage);
+    }
+  } else {
+    // If role isn't business
+    console.log(notAuthorizedMessage);
+
+    res.status(403);
+    throw new Error(notAuthorizedMessage);
+  }
+});
+
 // if (req.user) {
 //     // Get role
 //     const { role } = req.user;
